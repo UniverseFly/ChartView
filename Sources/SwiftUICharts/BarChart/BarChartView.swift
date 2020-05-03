@@ -139,10 +139,7 @@ public struct BarChartView : View {
 #if DEBUG
 struct ChartView_Previews : PreviewProvider {
     static var previews: some View {
-        BarChartView(data: TestData.values ,
-                     title: "Model 3 sales",
-                     legend: "Quarterly",
-                     valueSpecifier: "%.0f")
+         BarChartView(data: ChartData(points: [8, 8, 8, 7, 5, 3,0,0,0]), title: "Title", legend: "Legendary") // legend is optional
     }
 }
 #endif

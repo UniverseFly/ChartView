@@ -30,8 +30,10 @@ public struct LineChartView: View {
             
         }
     }
-    let frame = CGSize(width: 180, height: 120)
+    let frame = CGSize(width: 280, height: 120)
     private var rateValue: Int
+    
+    private var actualCount: Int? = nil
     
     public init(data: [Double],
                 title: String,
@@ -40,7 +42,9 @@ public struct LineChartView: View {
                 form: CGSize? = ChartForm.medium,
                 rateValue: Int? = 14,
                 dropShadow: Bool? = true,
-                valueSpecifier: String? = "%.1f") {
+                valueSpecifier: String? = "%.1f",
+                actualCount: Int? = nil) {
+        self.actualCount = actualCount
         
         self.data = ChartData(points: data)
         self.title = title
@@ -72,11 +76,8 @@ public struct LineChartView: View {
                                 .foregroundColor(self.colorScheme == .dark ? self.darkModeStyle.legendTextColor :self.style.legendTextColor)
                         }
                         HStack {
-                            if (self.rateValue >= 0){
-                                Image(systemName: "arrow.up")
-                            }else{
-                                Image(systemName: "arrow.down")
-                            }
+                            Image(systemName: "flame.fill")
+                                .offset(y: -1)
                             Text("\(self.rateValue)%")
                         }
                     }
@@ -95,13 +96,18 @@ public struct LineChartView: View {
                 }
                 Spacer()
                 GeometryReader{ geometry in
-                    Line(data: self.data,
-                        frame: .constant(geometry.frame(in: .local)),
-                        touchLocation: self.$touchLocation,
-                        showIndicator: self.$showIndicatorDot,
-                        minDataValue: .constant(nil),
-                        maxDataValue: .constant(nil)
-                    )
+                    HStack {
+                        Line(data: self.data,
+                             frame: .constant(geometry.frame(in: .local)),
+                             touchLocation: self.$touchLocation,
+                             showIndicator: self.$showIndicatorDot,
+                             minDataValue: .constant(nil),
+                             maxDataValue: .constant(nil)
+                        ).frame(width: self.actualCount != nil ? (self.frame.width * CGFloat(self.actualCount!) / CGFloat(self.data.points.count) - 10) : nil)
+                        (self.colorScheme == .dark ? self.darkModeStyle.backgroundColor : self.style.backgroundColor)
+//                            .padding(.leading, 1)
+                        .blur(radius: 1)
+                    }
                 }
                 .frame(width: frame.width, height: frame.height + 30)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -137,7 +143,8 @@ public struct LineChartView: View {
 struct WidgetView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            LineChartView(data: [8,23,54,32,12,37,7,23,43], title: "Line chart", legend: "Basic")
+            LineChartView(data: [5, 5, 5, 2, 1, 0], title: "Line chart",
+                          actualCount: 4)
                 .environment(\.colorScheme, .light)
         }
     }
